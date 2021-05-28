@@ -24,21 +24,18 @@
  namespace Udjat {
 
 	/// @brief File system object.
-	class FileSystem {
+	class UDJAT_API FileSystem {
 	private:
 
 		/// @brief Handle for the disk device.
 		int handle;
 
-		/// @brief Disk device name.
-		const char *devname;
-
 	public:
-		FileSystem(const char *devname);
+		FileSystem(const char *path);
 		~FileSystem();
 
-		/// @brief Disk usage in % (0-1)
-		float used() const noexcept;
+		/// @brief Disk usage in % (0 - 1)
+		float used() const;
 
 	};
 

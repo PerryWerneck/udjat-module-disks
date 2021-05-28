@@ -17,41 +17,27 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
- #include <config.h>
- #include <sys/stat.h>
- #include <fcntl.h>
+ #include <udjat.h>
+ #include <udjat/module.h>
  #include <udjat/filesystem.h>
- #include <system_error>
  #include <unistd.h>
- #include <sys/statvfs.h>
- #include <iostream>
 
  using namespace std;
+ using namespace Udjat;
 
- namespace Udjat {
+ static int test_filesystem() {
 
-	 FileSystem::FileSystem(const char *path) {
+	Udjat::FileSystem fs("/");
 
-		handle = open(path,O_RDONLY);
-		if(handle < 0) {
-			throw system_error(ENOENT,system_category(),"Can't open filesystem");
-		}
-	 }
-
-	 FileSystem::~FileSystem() {
-		::close(handle);
-	 }
-
-	 float FileSystem::used() const {
-
-		struct statvfs info;
-
-		if(fstatvfs(handle,&info) < 0) {
-			throw system_error(errno,system_category(),"Can't get file system statistics");
-		}
-
-		return ((float) (info.f_blocks - info.f_bfree)) / ((float) (info.f_blocks));
-
-	 }
+	cout << "Usage: " << ((unsigned int) (fs.used() * 100)) << endl;
 
  }
+
+ int main(int argc, char **argv) {
+
+	setlocale( LC_ALL, "" );
+
+	test_filesystem();
+
+	return 0;
+}
