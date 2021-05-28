@@ -33,8 +33,10 @@
 			<Add option="-Wall" />
 			<Add directory="src/include" />
 		</Compiler>
+		<Unit filename="src/include/agent.h" />
 		<Unit filename="src/include/config.h" />
 		<Unit filename="src/include/udjat/filesystem.h" />
+		<Unit filename="src/module/agent.cc" />
 		<Unit filename="src/module/filesystem.cc" />
 		<Unit filename="src/module/init.cc" />
 		<Unit filename="src/testprogram/testprogram.cc" />

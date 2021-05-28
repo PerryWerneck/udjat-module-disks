@@ -17,13 +17,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+ /*
  #include <config.h>
  #include <udjat/module.h>
  #include <udjat/factory.h>
  #include <blkid/blkid.h>
  #include <unistd.h>
  #include <fstream>
- #include "private.h"
 
  using namespace std;
 
@@ -93,4 +93,5 @@
  Udjat::Module * udjat_module_init() {
 	return new ::Module();
  }
+ */
 

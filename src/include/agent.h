@@ -17,43 +17,33 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
- #include <config.h>
- #include <sys/stat.h>
- #include <fcntl.h>
- #include <udjat/filesystem.h>
- #include <system_error>
- #include <unistd.h>
- #include <sys/statvfs.h>
- #include <iostream>
+ #pragma once
 
- using namespace std;
+ #include <udjat/defs.h>
+ #include <udjat/agent.h>
 
- namespace Udjat {
+ class UDJAT_API Agent : public Udjat::Agent<float> {
+ private:
 
-	 FileSystem::FileSystem(const char *path) {
+	/// @brief Device name.
+	const char *mount_point;
 
-		handle = open(path,O_RDONLY);
-		if(handle < 0) {
-			throw system_error(ENOENT,system_category(),"Can't open filesystem");
-		}
-	 }
+	void setup();
 
-	 FileSystem::~FileSystem() {
-		::close(handle);
-	 }
+ public:
+ 	typedef Udjat::Agent<float> super;
 
-	 float FileSystem::used() const {
+	Agent(const char * mount_point, const char *name = "");
 
-		struct statvfs info;
+	void get(const char *name, Json::Value &value) override;
 
-		// statfs or statvfs? That's the question.
+	/// @brief Get device status, update internal state.
+	void refresh() override;
 
-		if(fstatvfs(handle,&info) < 0) {
-			throw system_error(errno,system_category(),"Can't get file system statistics");
-		}
+	/// @brief Get value as string.
+	std::string to_string() const override;
 
-		return ((float) (info.f_blocks - info.f_bfree)) / ((float) (info.f_blocks));
+	virtual ~Agent();
 
-	 }
+ };
 
- }

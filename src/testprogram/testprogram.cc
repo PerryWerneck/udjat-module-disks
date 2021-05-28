@@ -21,15 +21,17 @@
  #include <udjat/module.h>
  #include <udjat/filesystem.h>
  #include <unistd.h>
+ #include <agent.h>
 
  using namespace std;
  using namespace Udjat;
 
- static int test_filesystem() {
+ static void test_filesystem() {
 
-	Udjat::FileSystem fs("/");
+	::Agent agent("/");
+	agent.refresh();
 
-	cout << "Usage: " << ((unsigned int) (fs.used() * 100)) << endl;
+	cout << "Usage of '" << agent.getName() << "' is " << agent.to_string() << endl;
 
  }
 
