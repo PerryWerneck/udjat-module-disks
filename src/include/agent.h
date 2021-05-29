@@ -21,6 +21,7 @@
 
  #include <udjat/defs.h>
  #include <udjat/agent.h>
+ #include <pugixml.hpp>
 
  class UDJAT_API Agent : public Udjat::Agent<float> {
  private:
@@ -29,13 +30,13 @@
 	const char *mount_point;
 
 	void setup();
+	void setDefaultStates();
 
  public:
  	typedef Udjat::Agent<float> super;
 
 	Agent(const char * mount_point, const char *name = "");
-
-	void get(const char *name, Json::Value &value) override;
+	Agent(const char * mount_point, const char *name, const pugi::xml_node &node, bool name_from_xml);
 
 	/// @brief Get device status, update internal state.
 	void refresh() override;

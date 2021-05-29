@@ -17,12 +17,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
- /*
  #include <config.h>
  #include <udjat/module.h>
  #include <udjat/factory.h>
  #include <blkid/blkid.h>
  #include <unistd.h>
+ #include <agent.h>
  #include <fstream>
 
  using namespace std;
@@ -47,26 +47,17 @@
 	void parse(Udjat::Abstract::Agent &parent, const pugi::xml_node &node) const override {
 
 		/// @brief Container with all disks
-		class Container : public Abstract::Agent {
+		class Container : public Udjat::Abstract::Agent {
 		public:
-			Container(const pugi::xml_node &node) : Abstract::Agent("storage") {
+			Container(const pugi::xml_node &node) : Udjat::Abstract::Agent("storage") {
 
 				icon = "drive-multidisk";
 				label = "Logical disks";
 				load(node);
 
-
-
 			}
 
 			virtual ~Container() {
-			}
-
-			/// @brief Export device info.
-			void get(const Udjat::Request &request, Udjat::Response &response) override {
-
-				Abstract::Agent::get(request,response);
-
 			}
 
 		};
@@ -76,7 +67,7 @@
 		if(*mountpoint) {
 
 			// Has device name, create a device node.
-			//parent.insert(make_shared<Smart::Agent>(mountpoint,node,true));
+			//parent.insert(make_shared<Agent>(mountpoint,"",node,true));
 
 		} else {
 
@@ -93,5 +84,5 @@
  Udjat::Module * udjat_module_init() {
 	return new ::Module();
  }
- */
+
 
