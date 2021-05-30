@@ -24,6 +24,8 @@
  #include <unistd.h>
  #include <agent.h>
  #include <fstream>
+ #include <vector>
+ #include <udjat/tools/file.h>
 
  using namespace std;
 
@@ -55,6 +57,129 @@
 				label = "Logical disks";
 				load(node);
 
+				//
+				// Load devices.
+				//
+				struct List {
+
+					struct Device {
+						string devname;
+						string label;
+						string mountpoint;
+
+						Device(const char *d, const char *l) : devname(d),label(l) {
+						}
+
+					};
+
+					std::vector<Device> values;
+
+					inline std::vector<Device>::iterator begin() {
+						return values.begin();
+					}
+
+					inline std::vector<Device>::iterator end() {
+						return values.end();
+					}
+
+				};
+
+				List devices;
+
+				//
+				// Get block devices with labels.
+				//
+				{
+					blkid_cache cache = NULL;
+
+					blkid_get_cache(&cache,NULL);
+					blkid_probe_all(cache);
+					blkid_dev_iterate iter = blkid_dev_iterate_begin(cache);
+					blkid_dev dev;
+					while (blkid_dev_next(iter, &dev) == 0) {
+
+						dev = blkid_verify(cache, dev);
+						if (!dev)
+							continue;
+
+						string label;
+
+						blkid_tag_iterate tag = blkid_tag_iterate_begin(dev);
+						const char *type, *value;
+						while (blkid_tag_next(tag, &type, &value) == 0) {
+
+							if(!strcasecmp(type,"LABEL")) {
+								label = value;
+								cout << "disk\tDetected device '" << blkid_dev_devname(dev) << "' with name '" << label << "'" << endl;
+							}
+
+						}
+						blkid_tag_iterate_end(tag);
+						devices.values.emplace_back(blkid_dev_devname(dev),label.c_str());
+
+					}
+
+					blkid_dev_iterate_end(iter);
+
+					blkid_put_cache(cache);
+
+				}
+
+				// Get mount points
+				{
+					Udjat::File::Text mounts("/proc/mounts");
+
+					for(auto device = devices.begin(); device != devices.end(); device++) {
+
+						const char *devname = device->devname.c_str();
+						size_t szName = device->devname.size();
+
+						for(auto mp : mounts) {
+							if(!strncmp(devname,mp->c_str(),szName)) {
+								const char *from = mp->c_str()+szName;
+								while(*from && isspace(*from))
+									from++;
+								const char *to = from;
+								while(*to && !isspace(*to)) {
+									to++;
+								}
+								if(*to) {
+									device->mountpoint = string(from,to-from);
+									cout	<< "disk\tUsing " << device->mountpoint
+											<< " as mount point for " << device->devname
+											<< " (" << device->label << ")"
+											<< endl;
+									break;
+								}
+							}
+						}
+
+					}
+				}
+
+				// Create agents
+				{
+
+					for(auto device = devices.begin(); device != devices.end(); device++) {
+
+						if(device->mountpoint.empty()) {
+							continue;
+						}
+
+						this->insert(
+							std::make_shared<::Agent>(
+								device->mountpoint.c_str(),
+								device->label.c_str(),
+								node,
+								false
+							)
+						);
+
+					}
+
+				}
+
+
 			}
 
 			virtual ~Container() {
@@ -67,7 +192,7 @@
 		if(*mountpoint) {
 
 			// Has device name, create a device node.
-			//parent.insert(make_shared<Agent>(mountpoint,"",node,true));
+			parent.insert(make_shared<Agent>(Udjat::Quark(mountpoint).c_str(),"",node,true));
 
 		} else {
 

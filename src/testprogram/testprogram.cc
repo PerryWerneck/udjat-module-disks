@@ -26,6 +26,7 @@
  using namespace std;
  using namespace Udjat;
 
+ /*
  static void test_filesystem() {
 
 	::Agent agent("/");
@@ -34,12 +35,35 @@
 	cout << "Usage of '" << agent.getName() << "' is " << agent.to_string() << endl;
 
  }
+ */
+
+ static void agent_test() {
+
+	for(auto agent : *Abstract::Agent::init("${PWD}/test.xml")) {
+		cout << "http://localhost:8989/api/1.0/agent/" << agent->getName() << endl;
+	}
+
+	cout << "Waiting for requests" << endl;
+	// Udjat::run();
+
+	Abstract::Agent::deinit();
+
+ }
 
  int main(int argc, char **argv) {
 
 	setlocale( LC_ALL, "" );
 
-	test_filesystem();
+	Logger::redirect(nullptr,true);
+
+	Module::load("http");
+	auto module = udjat_module_init();
+
+	agent_test();
+
+	cout << "Removing module" << endl;
+	delete module;
+	Module::unload();
 
 	return 0;
 }

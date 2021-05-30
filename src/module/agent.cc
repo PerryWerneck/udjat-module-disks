@@ -62,6 +62,14 @@
 		""
 	},
 
+	{
+		"/boot/efi",
+		"efi-boot",
+		"",
+		"EFI system partition",
+		"EFI boot loaders and applications used by the firmware at system during start-up"
+	},
+
 	// Holds important files during boot-up process, including Linux Kernel.
 	{
 		"/boot",
