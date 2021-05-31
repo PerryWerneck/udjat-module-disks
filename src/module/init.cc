@@ -201,6 +201,9 @@
 
 				Udjat::Abstract::Agent::get(request,response);
 
+				if(request != Udjat::Request::Get)
+					return;
+
 				Json::Value devices(Json::arrayValue);
 
 				for(auto child : *this) {
