@@ -26,6 +26,7 @@
  #include <fstream>
  #include <vector>
  #include <udjat/tools/file.h>
+ #include <udjat/tools/xml.h>
 
  using namespace std;
 
@@ -66,8 +67,9 @@
 						string devname;
 						string label;
 						string mountpoint;
+						string type;
 
-						Device(const char *d, const char *l) : devname(d),label(l) {
+						Device(const char *d, const string &l, const string &t) : devname(d),label(l),type(t) {
 						}
 
 					};
@@ -103,19 +105,22 @@
 							continue;
 
 						string label;
+						string type;
 
 						blkid_tag_iterate tag = blkid_tag_iterate_begin(dev);
-						const char *type, *value;
-						while (blkid_tag_next(tag, &type, &value) == 0) {
+						const char *t, *value;
+						while (blkid_tag_next(tag, &t, &value) == 0) {
 
-							if(!strcasecmp(type,"LABEL")) {
+							if(!strcasecmp(t,"LABEL")) {
 								label = value;
 								cout << "disk\tDetected device '" << blkid_dev_devname(dev) << "' with name '" << label << "'" << endl;
+							} else if(!strcasecmp(t,"TYPE")) {
+								type = value;
 							}
 
 						}
 						blkid_tag_iterate_end(tag);
-						devices.values.emplace_back(blkid_dev_devname(dev),label.c_str());
+						devices.values.emplace_back(blkid_dev_devname(dev),label,type);
 
 					}
 
@@ -166,10 +171,16 @@
 							continue;
 						}
 
+						// Check for ignore-[type] attribute
+						if(Udjat::Attribute(node,(string{"ignore-"} + device->type).c_str()).as_bool(false)) {
+							cout << "disk\tIgnoring '" << device->mountpoint << "'" << endl;
+							continue;
+						}
+
 						this->insert(
 							std::make_shared<::Agent>(
-								device->mountpoint.c_str(),
-								device->label.c_str(),
+								Udjat::Quark(device->mountpoint).c_str(),
+								Udjat::Quark(device->label).c_str(),
 								node,
 								false
 							)

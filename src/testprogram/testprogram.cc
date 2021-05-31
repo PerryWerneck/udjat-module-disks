@@ -44,7 +44,7 @@
 	}
 
 	cout << "Waiting for requests" << endl;
-	// Udjat::run();
+	Udjat::run();
 
 	Abstract::Agent::deinit();
 
