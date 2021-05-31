@@ -196,6 +196,38 @@
 			virtual ~Container() {
 			}
 
+			/// @brief Export info.
+			void get(const Udjat::Request &request, Udjat::Response &response) override {
+
+				Udjat::Abstract::Agent::get(request,response);
+
+				Json::Value devices(Json::arrayValue);
+
+				for(auto child : *this) {
+
+					auto agent = dynamic_cast<::Agent *>(child.get());
+					if(!agent)
+						continue;
+
+					// It's an smart agent, export it.
+					Json::Value device(Json::objectValue);
+
+					device["name"] = agent->getName();
+					device["summary"] = agent->getSummary();
+					device["icon"] = agent->getIcon();
+					device["state"] = agent->getState()->getSummary();
+					device["level"] = std::to_string(agent->getState()->getLevel());
+					device["used"] = agent->to_string();
+					device["mp"] = agent->getMountPoint();
+
+					devices.append(device);
+
+				}
+
+				response["disks"] = devices;
+
+			}
+
 		};
 
 		const char * mountpoint = node.attribute("mount-point").as_string();

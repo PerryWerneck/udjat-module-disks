@@ -41,6 +41,11 @@
 	/// @brief Get device status, update internal state.
 	void refresh() override;
 
+	/// @brief Get mount point.
+	inline const char * getMountPoint() const noexcept {
+		return mount_point;
+	}
+
 	/// @brief Get value as string.
 	std::string to_string() const override;
 
