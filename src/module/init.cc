@@ -204,7 +204,7 @@
 				if(request != Udjat::Request::Get)
 					return;
 
-				Json::Value devices(Json::arrayValue);
+				Udjat::Value &devices = response["disks"];
 
 				for(auto child : *this) {
 
@@ -213,7 +213,7 @@
 						continue;
 
 					// It's an smart agent, export it.
-					Json::Value device(Json::objectValue);
+					Udjat::Value &device = devices.append(Udjat::Value::Object);
 
 					device["name"] = agent->getName();
 					device["summary"] = agent->getSummary();
@@ -223,11 +223,7 @@
 					device["used"] = agent->to_string();
 					device["mp"] = agent->getMountPoint();
 
-					devices.append(device);
-
 				}
-
-				response["disks"] = devices;
 
 			}
 
