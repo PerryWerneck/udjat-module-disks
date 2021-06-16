@@ -201,9 +201,6 @@
 
 				Udjat::Abstract::Agent::get(request,response);
 
-				if(request != Udjat::Request::Get)
-					return;
-
 				Udjat::Value &devices = response["disks"];
 
 				for(auto child : *this) {
@@ -212,7 +209,7 @@
 					if(!agent)
 						continue;
 
-					// It's an smart agent, export it.
+					// It's a 'smart' agent, export it.
 					Udjat::Value &device = devices.append(Udjat::Value::Object);
 
 					device["name"] = agent->getName();
