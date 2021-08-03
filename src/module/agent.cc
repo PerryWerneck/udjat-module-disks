@@ -278,8 +278,9 @@
 
  }
 
- void Agent::refresh() {
+ bool Agent::refresh() {
  	set(Udjat::FileSystem(mount_point).used() * 100);
+ 	return true;
  }
 
  std::string Agent::to_string() const {

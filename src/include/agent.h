@@ -39,7 +39,7 @@
 	Agent(const char * mount_point, const char *name, const pugi::xml_node &node, bool name_from_xml);
 
 	/// @brief Get device status, update internal state.
-	void refresh() override;
+	bool refresh() override;
 
 	/// @brief Get mount point.
 	inline const char * getMountPoint() const noexcept {

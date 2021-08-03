@@ -47,7 +47,7 @@
  	virtual ~Module() {
  	}
 
-	void parse(Udjat::Abstract::Agent &parent, const pugi::xml_node &node) const override {
+	bool parse(Udjat::Abstract::Agent &parent, const pugi::xml_node &node) const override {
 
 		/// @brief Container with all disks
 		class Container : public Udjat::Abstract::Agent {
@@ -240,6 +240,7 @@
 
 		}
 
+		return true;
 	}
 
  };
