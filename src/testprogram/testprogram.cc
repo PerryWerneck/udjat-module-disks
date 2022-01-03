@@ -20,6 +20,7 @@
  #include <udjat.h>
  #include <udjat/module.h>
  #include <udjat/filesystem.h>
+ #include <udjat/tools/mainloop.h>
  #include <unistd.h>
  #include <agent.h>
 
@@ -44,7 +45,7 @@
 	}
 
 	cout << "Waiting for requests" << endl;
-	Udjat::run();
+	Udjat::MainLoop::getInstance().run();
 
 	Abstract::Agent::deinit();
 
