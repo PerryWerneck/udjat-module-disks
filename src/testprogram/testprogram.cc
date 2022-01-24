@@ -17,7 +17,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
- #include <udjat.h>
  #include <udjat/module.h>
  #include <udjat/filesystem.h>
  #include <udjat/tools/mainloop.h>
@@ -57,7 +56,7 @@
 
 	Logger::redirect(nullptr,true);
 
-	Module::load("http");
+	Module::load("http",false);
 	auto module = udjat_module_init();
 
 	agent_test();
