@@ -39,8 +39,8 @@
 
  static void agent_test() {
 
-	for(auto agent : *Abstract::Agent::init("${PWD}/test.xml")) {
-		cout << "http://localhost:8989/api/1.0/agent/" << agent->getName() << endl;
+	for(auto agent : *Udjat::load("./test.xml")) {
+		cout << "http://localhost:8989/api/1.0/agent/" << agent->name() << endl;
 	}
 
 	cout << "Waiting for requests" << endl;

@@ -267,9 +267,9 @@
 		if(!strcasecmp(mount_point,sysdefs[ix].mp)) {
 
 			// Have sysdef, update agent information.
-			this->icon = sysdefs[ix].icon;
-			this->label = sysdefs[ix].label;
-			this->summary = sysdefs[ix].summary;
+			this->Object::properties.icon = sysdefs[ix].icon;
+			this->Object::properties.label = sysdefs[ix].label;
+			this->Object::properties.summary = sysdefs[ix].summary;
 			break;
 
 		}
@@ -307,7 +307,7 @@
 			70.0,
 			"good",
 			Udjat::ready,
-			"${agent.name} usage is less than 70%",
+			"${name} usage is less than 70%",
 			""
 		},
 		{
@@ -315,7 +315,7 @@
 			90.0,
 			"gt70",
 			Udjat::warning,
-			"${agent.name} usage is greater than 70%",
+			"${name} usage is greater than 70%",
 			""
 		},
 		{
@@ -323,7 +323,7 @@
 			98.0,
 			"gt90",
 			Udjat::error,
-			"${agent.name} usage is greater than 90%",
+			"${name} usage is greater than 90%",
 			""
 		},
 		{
@@ -331,20 +331,14 @@
 			100,
 			"full",
 			Udjat::error,
-			"${agent.name} is full",
+			"${name} is full",
 			""
 		}
 	};
 
-	cout << this->getName() << "\tUsing default states" << endl;
+	info() << "Using default states" << endl;
 
 	for(size_t ix = 0; ix < (sizeof(states)/ sizeof(states[0])); ix++) {
-
-		string summary(states[ix].summary);
-		string body(states[ix].body);
-
-		expand(summary);
-		expand(body);
 
 		push_back(
 			make_shared<Udjat::State<float>>(
@@ -352,8 +346,8 @@
 				states[ix].from,
 				states[ix].to,
 				states[ix].level,
-				Udjat::Quark(summary).c_str(),
-				Udjat::Quark(body).c_str()
+				Udjat::Quark(expand(states[ix].summary)).c_str(),
+				Udjat::Quark(expand(states[ix].body)).c_str()
 			)
 		);
 

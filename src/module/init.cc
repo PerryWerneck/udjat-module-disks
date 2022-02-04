@@ -21,6 +21,7 @@
  #include <udjat/module.h>
  #include <udjat/factory.h>
  #include <blkid/blkid.h>
+ #include <udjat/agent.h>
  #include <unistd.h>
  #include <agent.h>
  #include <fstream>
@@ -54,8 +55,8 @@
 		public:
 			Container(const pugi::xml_node &node) : Udjat::Abstract::Agent("storage") {
 
-				icon = "drive-multidisk";
-				label = "Logical disks";
+				Object::properties.icon = "drive-multidisk";
+				Object::properties.label = "Logical disks";
 				load(node);
 
 				//
@@ -212,11 +213,11 @@
 					// It's a 'smart' agent, export it.
 					Udjat::Value &device = devices.append(Udjat::Value::Object);
 
-					device["name"] = agent->getName();
-					device["summary"] = agent->getSummary();
-					device["icon"] = agent->getIcon();
-					device["state"] = agent->getState()->getSummary();
-					device["level"] = std::to_string(agent->getState()->getLevel());
+					device["name"] = agent->name();
+					device["summary"] = agent->summary();
+					device["icon"] = agent->icon();
+					device["state"] = agent->getState()->summary();
+					device["level"] = std::to_string(agent->getState()->level());
 					device["used"] = agent->to_string();
 					device["mp"] = agent->getMountPoint();
 
