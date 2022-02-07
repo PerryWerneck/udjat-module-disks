@@ -182,8 +182,7 @@
 							std::make_shared<::Agent>(
 								Udjat::Quark(device->mountpoint).c_str(),
 								Udjat::Quark(device->label).c_str(),
-								node,
-								false
+								node
 							)
 						);
 
@@ -232,7 +231,7 @@
 		if(*mountpoint) {
 
 			// Has device name, create a device node.
-			parent.insert(make_shared<Agent>(Udjat::Quark(mountpoint).c_str(),"",node,true));
+			parent.insert(make_shared<Agent>(Udjat::Quark(mountpoint).c_str(),"",node));
 
 		} else {
 

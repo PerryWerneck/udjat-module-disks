@@ -252,9 +252,9 @@
 	setDefaultStates();
  }
 
- Agent::Agent(const char * m, const char *n, const pugi::xml_node &node, bool name_from_xml) : Udjat::Agent<float>(getNameFromMP(m,n)), mount_point(m) {
+ Agent::Agent(const char * m, const char *n, const pugi::xml_node &node) : Udjat::Agent<float>(getNameFromMP(m,n)), mount_point(m) {
 	setup();
-	load(node,name_from_xml);
+	load(node);
 	if(!hasStates()) {
 		setDefaultStates();
 	}
