@@ -212,11 +212,13 @@
 					// It's a 'smart' agent, export it.
 					Udjat::Value &device = devices.append(Udjat::Value::Object);
 
+					auto state = agent->state();
+
 					device["name"] = agent->name();
 					device["summary"] = agent->summary();
 					device["icon"] = agent->icon();
-					device["state"] = agent->getState()->summary();
-					device["level"] = std::to_string(agent->getState()->level());
+					device["state"] = state->summary();
+					device["level"] = std::to_string(state->level());
 					device["used"] = agent->to_string();
 					device["mp"] = agent->getMountPoint();
 
