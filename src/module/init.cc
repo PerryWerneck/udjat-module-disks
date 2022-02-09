@@ -19,6 +19,7 @@
 
  #include <config.h>
  #include <udjat/module.h>
+ #include <udjat/moduleinfo.h>
  #include <udjat/factory.h>
  #include <blkid/blkid.h>
  #include <udjat/agent.h>
@@ -31,18 +32,12 @@
 
  using namespace std;
 
- static const Udjat::ModuleInfo moduleinfo{
-	PACKAGE_NAME,								// The module name.
-	"Logical disk status monitor", 				// The module description.
-	PACKAGE_VERSION, 							// The module version.
-	PACKAGE_URL, 								// The package URL.
-	PACKAGE_BUGREPORT 							// The bug report address.
- };
+ static const Udjat::ModuleInfo moduleinfo{"Logical disk status monitor"};
 
  class Module : public Udjat::Module, Udjat::Factory {
  public:
 
- 	Module() : Udjat::Module("disk",&moduleinfo), Udjat::Factory("storage",&moduleinfo) {
+ 	Module() : Udjat::Module("disk",moduleinfo), Udjat::Factory("storage",moduleinfo) {
  	};
 
  	virtual ~Module() {
