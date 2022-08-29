@@ -21,6 +21,7 @@
  #include <agent.h>
  #include <udjat/tools/quark.h>
  #include <udjat/filesystem.h>
+ #include <udjat/tools/intl.h>
  #include <iostream>
  #include <sstream>
  #include <iomanip>
@@ -40,7 +41,7 @@
 		"/",
 		"system",
 		"drive-harddisk-system",
-		"System root",
+		N_( "System root" ),
 		""
 	},
 
@@ -49,8 +50,8 @@
 		"/home",
 		"home",
 		"user-home",
-		"User's homes",
-		"Home directory of the users"
+		N_( "User's homes" ),
+		N_( "Home directory of the users" )
 	},
 
 	// All the executable binary programs (file) required during booting, repairing, files required to run into single-user-mode, and other important, basic commands viz., cat, du, df, tar, rpm, wc, history, etc.
@@ -58,7 +59,7 @@
 		"/bin",
 		"bin",
 		"applications-system",
-		"Binary programs",
+		N_( "Binary programs" ),
 		""
 	},
 
@@ -66,8 +67,8 @@
 		"/boot/efi",
 		"efi-boot",
 		"",
-		"EFI system partition",
-		"EFI boot loaders and applications used by the firmware at system during start-up"
+		N_( "EFI system partition" ),
+		N_( "EFI boot loaders and applications used by the firmware at system during start-up" )
 	},
 
 	// Holds important files during boot-up process, including Linux Kernel.
@@ -75,7 +76,7 @@
 		"/boot",
 		"boot",
 		"",
-		"Boot-up process",
+		N_( "Boot-up process" ),
 		""
 	},
 
@@ -84,7 +85,7 @@
 		"/dev",
 		"dev",
 		"",
-		"Hardware devices",
+		N_( "Hardware devices" ),
 		""
 	},
 
@@ -93,7 +94,7 @@
 		"/etc",
 		"etc",
 		"",
-		"Configuration files",
+		N_( "Configuration files" ),
 		""
 	},
 
@@ -102,7 +103,7 @@
 		"/lib",
 		"lib",
 		"",
-		"Kernel modules and library images",
+		N_( "Kernel modules and library images" ),
 		""
 	},
 
@@ -111,7 +112,7 @@
 		"/media",
 		"media",
 		"drive-removable-media",
-		"Removable devices",
+		N_( "Removable devices" ),
 		""
 	},
 
@@ -120,7 +121,7 @@
 		"/mnt",
 		"mnt",
 		"",
-		"Temporary mount",
+		N_( "Temporary mount" ),
 		""
 	},
 
@@ -129,7 +130,7 @@
 		"/opt",
 		"opt",
 		"",
-		"Third party application",
+		N_( "Third party application" ),
 		""
 	},
 
@@ -147,7 +148,7 @@
 		"/root",
 		"root",
 		"user-home",
-		"Root user home directory",
+		N_( "Root user home directory" ),
 		""
 	},
 
@@ -165,7 +166,7 @@
 		"/sbin",
 		"sbin",
 		"",
-		"Sysadmin binaries",
+		N_( "Sysadmin binaries" ),
 		""
 	},
 
@@ -174,7 +175,7 @@
 		"/srv/www",
 		"www",
 		"folder-publicshare",
-		"HTTP server files",
+		N_( "HTTP server files" ),
 		""
 	},
 
@@ -183,7 +184,7 @@
 		"/srv",
 		"srv",
 		"",
-		"Service related files",
+		N_( "Service related files" ),
 		""
 	},
 
@@ -201,7 +202,7 @@
 		"/tmp",
 		"tmp",
 		"",
-		"System temporary files",
+		N_( "System temporary files" ),
 		""
 	},
 
@@ -210,7 +211,7 @@
 		"/usr",
 		"usr",
 		"",
-		"Second level programs",
+		N_( "Second level programs" ),
 		""
 	},
 
@@ -219,7 +220,7 @@
 		"/var",
 		"var",
 		"",
-		"Variable files",
+		N_( "Variable files" ),
 		""
 	},
 
@@ -255,7 +256,7 @@
  Agent::Agent(const char * m, const char *n, const pugi::xml_node &node) : Udjat::Agent<float>(getNameFromMP(m,n)), mount_point(m) {
 	setup();
 	load(node);
-	if(!hasStates()) {
+	if(states.empty()) {
 		setDefaultStates();
 	}
  }
@@ -268,8 +269,13 @@
 
 			// Have sysdef, update agent information.
 			this->Object::properties.icon = sysdefs[ix].icon;
+#ifdef GETTEXT_PACKAGE
+			this->Object::properties.label = dgettext(GETTEXT_PACKAGE,sysdefs[ix].label);
+			this->Object::properties.summary = dgettext(GETTEXT_PACKAGE,sysdefs[ix].summary);
+#else
 			this->Object::properties.label = sysdefs[ix].label;
 			this->Object::properties.summary = sysdefs[ix].summary;
+#endif // GETTEXT_PACKAGE
 			break;
 
 		}
@@ -307,7 +313,7 @@
 			70.0,
 			"good",
 			Udjat::ready,
-			"${name} usage is less than 70%",
+			N_( "${name} usage is less than 70%" ),
 			""
 		},
 		{
@@ -315,7 +321,7 @@
 			90.0,
 			"gt70",
 			Udjat::warning,
-			"${name} usage is greater than 70%",
+			N_( "${name} usage is greater than 70%" ),
 			""
 		},
 		{
@@ -323,7 +329,7 @@
 			98.0,
 			"gt90",
 			Udjat::error,
-			"${name} usage is greater than 90%",
+			N_( "${name} usage is greater than 90%" ),
 			""
 		},
 		{
@@ -331,7 +337,7 @@
 			100,
 			"full",
 			Udjat::error,
-			"${name} is full",
+			N_( "${name} is full" ),
 			""
 		}
 	};
@@ -346,8 +352,13 @@
 				states[ix].from,
 				states[ix].to,
 				states[ix].level,
+#ifdef GETTEXT_PACKAGE
+				Udjat::Quark(expand(dgettext(GETTEXT_PACKAGE,states[ix].summary))).c_str(),
+				Udjat::Quark(expand(dgettext(GETTEXT_PACKAGE,states[ix].body))).c_str()
+#else
 				Udjat::Quark(expand(states[ix].summary)).c_str(),
 				Udjat::Quark(expand(states[ix].body)).c_str()
+#endif
 			)
 		);
 

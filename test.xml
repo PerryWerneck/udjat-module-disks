@@ -2,6 +2,9 @@
 
 <config>
 
+	<module name='civetweb' required='no' />
+	<module name='information' required='no' />
+
 	<!-- storage mount-point='/' / -->
 
 	<storage name='disks' ignore-vfat='yes' />

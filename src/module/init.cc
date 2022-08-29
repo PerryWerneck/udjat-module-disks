@@ -18,6 +18,7 @@
  */
 
  #include <config.h>
+ #include <udjat/agent.h>
  #include <udjat/module.h>
  #include <udjat/moduleinfo.h>
  #include <udjat/factory.h>
@@ -43,7 +44,7 @@
  	virtual ~Module() {
  	}
 
-	bool parse(Udjat::Abstract::Agent &parent, const pugi::xml_node &node) const override {
+	std::shared_ptr<Udjat::Abstract::Agent> AgentFactory(const Udjat::Abstract::Object &parent, const pugi::xml_node &node) const override {
 
 		/// @brief Container with all disks
 		class Container : public Udjat::Abstract::Agent {
@@ -228,16 +229,14 @@
 		if(*mountpoint) {
 
 			// Has device name, create a device node.
-			parent.insert(make_shared<Agent>(Udjat::Quark(mountpoint).c_str(),"",node));
-
-		} else {
-
-			// No device name, create a container with all detected devices.
-			parent.insert(make_shared<Container>(node));
+			return make_shared<Agent>(Udjat::Quark(mountpoint).c_str(),"",node);
 
 		}
 
-		return true;
+
+		// No device name, create a container with all detected devices.
+		return make_shared<Container>(node);
+
 	}
 
  };
