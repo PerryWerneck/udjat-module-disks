@@ -46,6 +46,10 @@
 
 	std::shared_ptr<Udjat::Abstract::Agent> AgentFactory(const Udjat::Abstract::Object &parent, const pugi::xml_node &node) const override {
 
+#ifdef DEBUG
+		cout << "Creating disk agent" << endl;
+#endif // DEBUG
+
 		/// @brief Container with all disks
 		class Container : public Udjat::Abstract::Agent {
 		public:
@@ -53,7 +57,6 @@
 
 				Object::properties.icon = "drive-multidisk";
 				Object::properties.label = "Logical disks";
-				load(node);
 
 				//
 				// Load devices.

@@ -250,15 +250,85 @@
 
  Agent::Agent(const char * m, const char *name) : Udjat::Agent<float>(getNameFromMP(m,name)), mount_point(m) {
  	setup();
-	setDefaultStates();
  }
 
- Agent::Agent(const char * m, const char *n, const pugi::xml_node &node) : Udjat::Agent<float>(getNameFromMP(m,n)), mount_point(m) {
+ Agent::Agent(const char * m, const char *n, const pugi::xml_node UDJAT_UNUSED(&node)) : Udjat::Agent<float>(getNameFromMP(m,n)), mount_point(m) {
 	setup();
-	load(node);
+ }
+
+ void Agent::start() {
+
 	if(states.empty()) {
-		setDefaultStates();
+		//
+		// No custom states, use the default ones.
+		//
+		static const struct {
+			float from;
+			float to;
+			const char 						* name;			///< @brief State name.
+			Udjat::Level					  level;		///< @brief State level.
+			const char						* summary;		///< @brief State summary.
+			const char						* body;			///< @brief State description
+		} states[] = {
+			{
+				0.0,
+				70.0,
+				"good",
+				Udjat::ready,
+				N_( "${name} usage is less than 70%" ),
+				""
+			},
+			{
+				70.0,
+				90.0,
+				"gt70",
+				Udjat::warning,
+				N_( "${name} usage is greater than 70%" ),
+				""
+			},
+			{
+				90.0,
+				98.0,
+				"gt90",
+				Udjat::error,
+				N_( "${name} usage is greater than 90%" ),
+				""
+			},
+			{
+				98.0,
+				100,
+				"full",
+				Udjat::error,
+				N_( "${name} is full" ),
+				""
+			}
+		};
+
+		info() << "Using default states" << endl;
+
+		for(size_t ix = 0; ix < (sizeof(states)/ sizeof(states[0])); ix++) {
+
+			push_back(
+				make_shared<Udjat::State<float>>(
+					states[ix].name,
+					states[ix].from,
+					states[ix].to,
+					states[ix].level,
+#ifdef GETTEXT_PACKAGE
+					Udjat::Quark(expand(dgettext(GETTEXT_PACKAGE,states[ix].summary))).c_str(),
+					Udjat::Quark(expand(dgettext(GETTEXT_PACKAGE,states[ix].body))).c_str()
+#else
+					Udjat::Quark(expand(states[ix].summary)).c_str(),
+					Udjat::Quark(expand(states[ix].body)).c_str()
+#endif
+				)
+			);
+
+		}
+
 	}
+
+	super::start();
  }
 
  void Agent::setup() {
@@ -295,74 +365,6 @@
 	std::stringstream out;
  	out << std::fixed << std::setprecision(2) << super::get() << "%";
  	return out.str();
-
- }
-
- void Agent::setDefaultStates() {
-
-	static const struct {
-		float from;
-		float to;
-		const char 						* name;			///< @brief State name.
-		Udjat::Level					  level;		///< @brief State level.
-		const char						* summary;		///< @brief State summary.
-		const char						* body;			///< @brief State description
-	} states[] = {
-		{
-			0.0,
-			70.0,
-			"good",
-			Udjat::ready,
-			N_( "${name} usage is less than 70%" ),
-			""
-		},
-		{
-			70.0,
-			90.0,
-			"gt70",
-			Udjat::warning,
-			N_( "${name} usage is greater than 70%" ),
-			""
-		},
-		{
-			90.0,
-			98.0,
-			"gt90",
-			Udjat::error,
-			N_( "${name} usage is greater than 90%" ),
-			""
-		},
-		{
-			98.0,
-			100,
-			"full",
-			Udjat::error,
-			N_( "${name} is full" ),
-			""
-		}
-	};
-
-	info() << "Using default states" << endl;
-
-	for(size_t ix = 0; ix < (sizeof(states)/ sizeof(states[0])); ix++) {
-
-		push_back(
-			make_shared<Udjat::State<float>>(
-				states[ix].name,
-				states[ix].from,
-				states[ix].to,
-				states[ix].level,
-#ifdef GETTEXT_PACKAGE
-				Udjat::Quark(expand(dgettext(GETTEXT_PACKAGE,states[ix].summary))).c_str(),
-				Udjat::Quark(expand(dgettext(GETTEXT_PACKAGE,states[ix].body))).c_str()
-#else
-				Udjat::Quark(expand(states[ix].summary)).c_str(),
-				Udjat::Quark(expand(states[ix].body)).c_str()
-#endif
-			)
-		);
-
-	}
 
  }
 

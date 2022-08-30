@@ -30,13 +30,14 @@
 	const char *mount_point;
 
 	void setup();
-	void setDefaultStates();
 
  public:
  	typedef Udjat::Agent<float> super;
 
 	Agent(const char * mount_point, const char *name = "");
 	Agent(const char * mount_point, const char *name, const pugi::xml_node &node);
+
+	void start() override;
 
 	/// @brief Get device status, update internal state.
 	bool refresh() override;
