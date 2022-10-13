@@ -328,7 +328,8 @@
 
 	}
 
-	super::start();
+	Udjat::Abstract::Agent::start();
+
  }
 
  void Agent::setup() {
