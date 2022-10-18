@@ -48,7 +48,7 @@
 	}
 
 	/// @brief Get value as string.
-	std::string to_string() const override;
+	std::string to_string() const noexcept override;
 
 	virtual ~Agent();
 

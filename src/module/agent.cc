@@ -360,7 +360,7 @@
  	return true;
  }
 
- std::string Agent::to_string() const {
+ std::string Agent::to_string() const noexcept {
 
 	// https://stackoverflow.com/questions/14432043/float-formatting-in-c
 	std::stringstream out;
