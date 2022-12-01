@@ -30,6 +30,8 @@
  #include <vector>
  #include <udjat/tools/file.h>
  #include <udjat/tools/xml.h>
+ #include <udjat/tools/intl.h>
+ #include <udjat/tools/logger.h>
 
  using namespace std;
 
@@ -44,11 +46,7 @@
  	virtual ~Module() {
  	}
 
-	std::shared_ptr<Udjat::Abstract::Agent> AgentFactory(const Udjat::Abstract::Object &parent, const pugi::xml_node &node) const override {
-
-#ifdef DEBUG
-		cout << "Creating disk agent" << endl;
-#endif // DEBUG
+	std::shared_ptr<Udjat::Abstract::Agent> AgentFactory(const Udjat::Abstract::Object UDJAT_UNUSED(&parent), const pugi::xml_node &node) const override {
 
 		/// @brief Container with all disks
 		class Container : public Udjat::Abstract::Agent {
@@ -56,7 +54,7 @@
 			Container(const pugi::xml_node &node) : Udjat::Abstract::Agent("storage") {
 
 				Object::properties.icon = "drive-multidisk";
-				Object::properties.label = "Logical disks";
+				Object::properties.label = _( "Logical disks" );
 
 				//
 				// Load devices.
@@ -113,7 +111,7 @@
 
 							if(!strcasecmp(t,"LABEL")) {
 								label = value;
-								cout << "disk\tDetected device '" << blkid_dev_devname(dev) << "' with name '" << label << "'" << endl;
+								info() << "Detected device '" << blkid_dev_devname(dev) << "' with name '" << label << "'" << endl;
 							} else if(!strcasecmp(t,"TYPE")) {
 								type = value;
 							}
@@ -150,7 +148,7 @@
 								}
 								if(*to) {
 									device->mountpoint = string(from,to-from);
-									cout	<< "disk\tUsing " << device->mountpoint
+									info()	<< "Using " << device->mountpoint
 											<< " as mount point for " << device->devname
 											<< " (" << device->label << ")"
 											<< endl;
@@ -173,17 +171,21 @@
 
 						// Check for ignore-[type] attribute
 						if(Udjat::Attribute(node,(string{"ignore-"} + device->type).c_str()).as_bool(false)) {
-							cout << "disk\tIgnoring '" << device->mountpoint << "'" << endl;
+							info() << "Ignoring '" << device->mountpoint << "'" << endl;
 							continue;
 						}
 
-						this->insert(
-							std::make_shared<::Agent>(
-								Udjat::Quark(device->mountpoint).c_str(),
-								Udjat::Quark(device->label).c_str(),
-								node
-							)
-						);
+						{
+							std::shared_ptr<Udjat::Abstract::Agent> child{
+								std::make_shared<::Agent>(
+									Udjat::Quark(device->mountpoint).c_str(),
+									Udjat::Quark(device->label).c_str(),
+									node
+								)
+							};
+
+							Udjat::Abstract::Agent::push_back(child);
+						}
 
 					}
 
