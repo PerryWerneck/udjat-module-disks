@@ -16,7 +16,10 @@
 # Please submit bugfixes or comments via http://bugs.opensuse.org/
 #
 
-Summary:		Logical disks Monitoring module for udjat 
+%define product_name %(pkg-config --variable=product_name libudjat)
+%define module_path %(pkg-config --variable=module_path libudjat)
+
+Summary:		Logical disks Monitoring module for %{product_name} 
 Name:			udjat-module-disks
 Version:		1.0
 Release:		0
@@ -40,9 +43,9 @@ BuildRequires:	pkgconfig(blkid)
 BuildRequires:	pkgconfig(udjat-sysinfo)
 
 %description
-Logical disks monitoring module for udjat.
+Logical disks monitoring module for %{product_name}.
 
-Add logical disk state agent(s) to the udjat agent tree.
+Add logical disk state agent(s) to the %{product_name} agent tree.
 
 #---[ Build & Install ]-----------------------------------------------------------------------------------------------
 
@@ -62,7 +65,7 @@ make all
 
 %files
 %defattr(-,root,root)
-%{_libdir}/udjat-modules/*/*.so
+%{module_path}/*.so
 
 %changelog
 
