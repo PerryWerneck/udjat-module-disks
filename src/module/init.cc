@@ -18,45 +18,43 @@
  */
 
  #include <config.h>
+ #include <udjat/agent.h>
  #include <udjat/module.h>
+ #include <udjat/moduleinfo.h>
  #include <udjat/factory.h>
  #include <blkid/blkid.h>
+ #include <udjat/agent.h>
  #include <unistd.h>
  #include <agent.h>
  #include <fstream>
  #include <vector>
  #include <udjat/tools/file.h>
  #include <udjat/tools/xml.h>
+ #include <udjat/tools/intl.h>
+ #include <udjat/tools/logger.h>
 
  using namespace std;
 
- static const Udjat::ModuleInfo moduleinfo{
-	PACKAGE_NAME,								// The module name.
-	"Logical disk status monitor", 				// The module description.
-	PACKAGE_VERSION, 							// The module version.
-	PACKAGE_URL, 								// The package URL.
-	PACKAGE_BUGREPORT 							// The bug report address.
- };
+ static const Udjat::ModuleInfo moduleinfo{"Logical disk status monitor"};
 
  class Module : public Udjat::Module, Udjat::Factory {
  public:
 
- 	Module() : Udjat::Module("disk",&moduleinfo), Udjat::Factory("storage",&moduleinfo) {
+ 	Module() : Udjat::Module("disk",moduleinfo), Udjat::Factory("storage",moduleinfo) {
  	};
 
  	virtual ~Module() {
  	}
 
-	bool parse(Udjat::Abstract::Agent &parent, const pugi::xml_node &node) const override {
+	std::shared_ptr<Udjat::Abstract::Agent> AgentFactory(const Udjat::Abstract::Object UDJAT_UNUSED(&parent), const pugi::xml_node &node) const override {
 
 		/// @brief Container with all disks
 		class Container : public Udjat::Abstract::Agent {
 		public:
 			Container(const pugi::xml_node &node) : Udjat::Abstract::Agent("storage") {
 
-				icon = "drive-multidisk";
-				label = "Logical disks";
-				load(node);
+				Object::properties.icon = "drive-multidisk";
+				Object::properties.label = _( "Logical disks" );
 
 				//
 				// Load devices.
@@ -113,7 +111,7 @@
 
 							if(!strcasecmp(t,"LABEL")) {
 								label = value;
-								cout << "disk\tDetected device '" << blkid_dev_devname(dev) << "' with name '" << label << "'" << endl;
+								info() << "Detected device '" << blkid_dev_devname(dev) << "' with name '" << label << "'" << endl;
 							} else if(!strcasecmp(t,"TYPE")) {
 								type = value;
 							}
@@ -150,7 +148,7 @@
 								}
 								if(*to) {
 									device->mountpoint = string(from,to-from);
-									cout	<< "disk\tUsing " << device->mountpoint
+									info()	<< "Using " << device->mountpoint
 											<< " as mount point for " << device->devname
 											<< " (" << device->label << ")"
 											<< endl;
@@ -173,18 +171,21 @@
 
 						// Check for ignore-[type] attribute
 						if(Udjat::Attribute(node,(string{"ignore-"} + device->type).c_str()).as_bool(false)) {
-							cout << "disk\tIgnoring '" << device->mountpoint << "'" << endl;
+							info() << "Ignoring '" << device->mountpoint << "'" << endl;
 							continue;
 						}
 
-						this->insert(
-							std::make_shared<::Agent>(
-								Udjat::Quark(device->mountpoint).c_str(),
-								Udjat::Quark(device->label).c_str(),
-								node,
-								false
-							)
-						);
+						{
+							std::shared_ptr<Udjat::Abstract::Agent> child{
+								std::make_shared<::Agent>(
+									Udjat::Quark(device->mountpoint).c_str(),
+									Udjat::Quark(device->label).c_str(),
+									node
+								)
+							};
+
+							Udjat::Abstract::Agent::push_back(child);
+						}
 
 					}
 
@@ -212,11 +213,13 @@
 					// It's a 'smart' agent, export it.
 					Udjat::Value &device = devices.append(Udjat::Value::Object);
 
-					device["name"] = agent->getName();
-					device["summary"] = agent->getSummary();
-					device["icon"] = agent->getIcon();
-					device["state"] = agent->getState()->getSummary();
-					device["level"] = std::to_string(agent->getState()->getLevel());
+					auto state = agent->state();
+
+					device["name"] = agent->name();
+					device["summary"] = agent->summary();
+					device["icon"] = agent->icon();
+					device["state"] = state->summary();
+					device["level"] = std::to_string(state->level());
 					device["used"] = agent->to_string();
 					device["mp"] = agent->getMountPoint();
 
@@ -231,16 +234,14 @@
 		if(*mountpoint) {
 
 			// Has device name, create a device node.
-			parent.insert(make_shared<Agent>(Udjat::Quark(mountpoint).c_str(),"",node,true));
-
-		} else {
-
-			// No device name, create a container with all detected devices.
-			parent.insert(make_shared<Container>(node));
+			return make_shared<Agent>(Udjat::Quark(mountpoint).c_str(),"",node);
 
 		}
 
-		return true;
+
+		// No device name, create a container with all detected devices.
+		return make_shared<Container>(node);
+
 	}
 
  };
