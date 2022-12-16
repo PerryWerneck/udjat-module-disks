@@ -52,6 +52,11 @@ stamp-h1
 *.bak
 
 Makefile
+ABOUT-NLS
+intl
+m4
+po
+
 valgrind.suppression
 
 # Personal Notes
