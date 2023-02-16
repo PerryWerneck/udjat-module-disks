@@ -24,6 +24,7 @@
  #include <udjat/factory.h>
  #include <blkid/blkid.h>
  #include <udjat/agent.h>
+ #include <udjat/agent/abstract.h>
  #include <unistd.h>
  #include <agent.h>
  #include <fstream>
@@ -198,11 +199,11 @@
 			}
 
 			/// @brief Export info.
-			void get(const Udjat::Request &request, Udjat::Response &response) override {
+			Udjat::Value & getProperties(Udjat::Value &value) const noexcept override {
 
-				Udjat::Abstract::Agent::get(request,response);
+				super::getProperties(value);
 
-				Udjat::Value &devices = response["disks"];
+				Udjat::Value &devices = value["disks"];
 
 				for(auto child : *this) {
 
@@ -224,6 +225,8 @@
 					device["mp"] = agent->getMountPoint();
 
 				}
+
+				return value;
 
 			}
 
